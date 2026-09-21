@@ -1,0 +1,535 @@
+
+{{ define "home" }} {{ template "header" . }}
+
+<main role="main" class="home-main">
+  <style>
+    /* Scoped Homepage Layout & Alignment Styles */
+    .home-main {
+      width: 100% !important;
+      overflow: visible !important;
+      height: auto !important;
+      background-color: #f8fafc !important;
+      padding-bottom: 60px;
+    }
+
+    /* Hero Section - Enlarged & Spacious */
+    .hero-wrapper {
+      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 85px 0 75px 0;
+      width: 100%;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background-color: #eef2ff;
+      color: #4f46e5;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: 999px;
+      margin-bottom: 22px;
+    }
+
+    .hero-heading {
+      font-size: 54px;
+      font-weight: 800;
+      line-height: 1.14;
+      letter-spacing: -1.5px;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+
+    .hero-accent {
+      color: #4f46e5;
+    }
+
+    .hero-desc {
+      font-size: 19px;
+      line-height: 1.65;
+      color: #64748b;
+      margin-bottom: 34px;
+      max-width: 580px;
+    }
+
+    .btn-explore {
+      display: inline-flex;
+      align-items: center;
+      background-color: #4f46e5;
+      color: #ffffff !important;
+      padding: 16px 34px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none !important;
+      box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+      transition: all 0.2s ease;
+      margin-right: 14px;
+    }
+
+    .btn-explore:hover {
+      background-color: #4338ca;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(79, 70, 229, 0.5);
+    }
+
+    .hero-stats {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .hero-stat-box strong {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .hero-stat-box span {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .hero-image-box {
+      width: 100%;
+      height: 440px;
+      background: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    .hero-image-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .hero-image-box:hover img {
+      transform: scale(1.03);
+    }
+
+    .floating-hero-badge {
+      position: absolute;
+      bottom: 22px;
+      left: 22px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 18px;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .floating-hero-badge .badge-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .floating-hero-badge .badge-sub {
+      font-size: 12px;
+      font-weight: 600;
+      color: #38bdf8;
+    }
+
+    /* Hide scrollbars completely while keeping the page smoothly scrollable */
+    ::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    /* Trust Features */
+    .trust-bar-wrapper {
+      padding: 30px 0;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .trust-pill-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 100%;
+      transition: all 0.2s ease;
+    }
+
+    .trust-pill-card:hover {
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+    }
+
+    .trust-icon {
+      font-size: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: #eef2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .trust-text h6 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .trust-text p {
+      margin: 2px 0 0 0;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Catalog Section */
+    .catalog-wrapper {
+      padding: 50px 0;
+    }
+
+    .catalog-title-area {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .catalog-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: #4f46e5;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    .catalog-heading {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+
+    .catalog-subheading {
+      font-size: 15px;
+      color: #64748b;
+      max-width: 520px;
+      margin: 8px auto 0 auto;
+    }
+
+    /* Product Grid */
+    .product-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .product-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 28px rgba(79, 70, 229, 0.12);
+      border-color: rgba(79, 70, 229, 0.4);
+    }
+
+    .product-img-frame {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      background: #f1f5f9;
+      overflow: hidden;
+    }
+
+    .product-img-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .product-box:hover .product-img-frame img {
+      transform: scale(1.06);
+    }
+
+    .product-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .product-item-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .product-item-title a {
+      color: #0f172a;
+      text-decoration: none;
+    }
+
+    .product-item-title a:hover {
+      color: #4f46e5;
+    }
+
+    .product-item-footer {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .product-item-price {
+      font-size: 17px;
+      font-weight: 800;
+      color: #4f46e5;
+    }
+
+    .btn-view-product {
+      background: #eef2ff;
+      color: #4f46e5;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none !important;
+      transition: all 0.2s ease;
+    }
+
+    .btn-view-product:hover {
+      background: #4f46e5;
+      color: #ffffff !important;
+    }
+
+    /* Promo Section */
+    .promo-wrapper {
+      padding: 20px 0 50px 0;
+    }
+
+    .promo-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      border-radius: 16px;
+      padding: 40px 24px;
+      color: #ffffff;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .promo-card h3 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .promo-card p {
+      color: #94a3b8;
+      font-size: 15px;
+      max-width: 500px;
+      margin: 0 auto 16px auto;
+    }
+
+    .promo-perk-badges {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .promo-badge-item {
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+  </style>
+
+  <section class="hero-wrapper">
+    <div class="container-fluid px-4 px-lg-5">
+      <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <span class="hero-tag">✨ 2026 Curated Collection</span>
+          <h1 class="hero-heading">
+            Curated Essentials for
+            <span class="hero-accent">Modern Living</span>.
+          </h1>
+          <p class="hero-desc">
+            Discover a handpicked selection of artisan goods, vintage
+            accessories, and everyday gear engineered for timeless elegance and
+            lasting quality.
+          </p>
+          <div>
+            <a href="#catalog-section" class="btn-explore">
+              Explore Collection ↓
+            </a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat-box">
+              <strong>10,000+</strong>
+              <span>Happy Shoppers</span>
+            </div>
+            <div style="width: 1px; height: 30px; background: #cbd5e1"></div>
+            <div class="hero-stat-box">
+              <strong>★ 4.9 / 5</strong>
+              <span>Customer Rating</span>
+            </div>
+            <div style="width: 1px; height: 30px; background: #cbd5e1"></div>
+            <div class="hero-stat-box">
+              <strong>100%</strong>
+              <span>Carbon Neutral</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="hero-image-box">
+            <img
+              src="/static/img/products/sunglasses.jpg"
+              alt="Featured Aviator Sunglasses"
+            />
+            <div class="floating-hero-badge">
+              <span class="badge-title">Iconic Aviator Sunglasses</span>
+              <span class="badge-sub"
+                >Handcrafted • UV400 Protection • $19.99</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust-bar-wrapper">
+    <div class="container-fluid px-4 px-lg-5">
+      <div class="row">
+        <div class="col-12 col-md-6 col-lg-3 mb-3 mb-lg-0">
+          <div class="trust-pill-card">
+            <div class="trust-icon">🚚</div>
+            <div class="trust-text">
+              <h6>Free Worldwide Shipping</h6>
+              <p>Complimentary on orders over $50</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3 mb-3 mb-lg-0">
+          <div class="trust-pill-card">
+            <div class="trust-icon">🔒</div>
+            <div class="trust-text">
+              <h6>100% Secure Checkout</h6>
+              <p>Bank-grade 256-bit encryption</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3 mb-3 mb-lg-0">
+          <div class="trust-pill-card">
+            <div class="trust-icon">🔄</div>
+            <div class="trust-text">
+              <h6>30-Day Easy Returns</h6>
+              <p>Hassle-free money-back guarantee</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="trust-pill-card">
+            <div class="trust-icon">💬</div>
+            <div class="trust-text">
+              <h6>24/7 Dedicated Support</h6>
+              <p>Real support team ready to assist</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="catalog-wrapper" id="catalog-section">
+    <div class="container-fluid px-4 px-lg-5">
+      <div class="catalog-title-area">
+        <span class="catalog-badge">OUR COLLECTION</span>
+        <h2 class="catalog-heading">Explore Curated Items</h2>
+        <p class="catalog-subheading">
+          Handcrafted items built for durability, aesthetic warmth, and everyday
+          performance.
+        </p>
+      </div>
+
+      <div class="row">
+        {{ range $.products }}
+        <div class="col-12 col-sm-6 col-md-4 col-xl-3 mb-4">
+          <div class="product-box">
+            <a href="/product/{{.Item.Id}}" class="product-img-frame">
+              <img
+                src="{{.Item.Picture}}"
+                alt="{{.Item.Name}}"
+                loading="lazy"
+              />
+            </a>
+            <div class="product-body">
+              <h3 class="product-item-title">
+                <a href="/product/{{.Item.Id}}">{{ .Item.Name }}</a>
+              </h3>
+              <div class="product-item-footer">
+                <span class="product-item-price">{{ renderMoney .Price }}</span>
+                <a href="/product/{{.Item.Id}}" class="btn-view-product">
+                  View Details →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{ end }}
+      </div>
+    </div>
+  </section>
+
+  <section class="promo-wrapper">
+    <div class="container-fluid px-4 px-lg-5">
+      <div class="promo-card">
+        <h3>Join the MJ Club & Enjoy 15% Off</h3>
+        <p>
+          Subscribe for early access to curated product drops, seasonal
+          releases, and exclusive member perks.
+        </p>
+        <div class="promo-perk-badges">
+          <span class="promo-badge-item">✓ Priority Shipping</span>
+          <span class="promo-badge-item">✓ Early Drop Access</span>
+          <span class="promo-badge-item">✓ 60-Day Extended Warranty</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+{{ template "footer" . }} {{ end }}

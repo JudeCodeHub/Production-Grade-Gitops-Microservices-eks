@@ -1,0 +1,161 @@
+
+:root {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #eef2ff;
+  --secondary: #0f172a;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --bg-body: #f8fafc;
+  --border-color: #e2e8f0;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+  background-color: var(--bg-body) !important;
+  font-family:
+    "Plus Jakarta Sans",
+    "DM Sans",
+    -apple-system,
+    sans-serif !important;
+  color: var(--text-main);
+}
+
+.local,
+.aws-platform,
+.onprem-platform,
+.azure-platform,
+.alibaba-platform,
+.gcp-platform,
+.platform-flag {
+  display: none !important;
+}
+
+header,
+.site-header {
+  background-color: #ffffff !important;
+  width: 100% !important;
+}
+
+.top-announcement-bar {
+  background: var(--secondary) !important;
+  color: #e2e8f0 !important;
+  padding: 9px 0 !important;
+  font-size: 13px !important;
+}
+
+.main-navbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 14px 0 !important;
+}
+
+main,
+.home-main {
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  background-color: var(--bg-body) !important;
+}
+
+.home .container-fluid {
+  height: auto !important;
+  max-width: none !important;
+}
+
+.home .container-fluid > .row > .col-lg-8 {
+  height: auto !important;
+  overflow-y: visible !important;
+}
+
+.home-desktop-left-image,
+.home-mobile-hero-banner {
+  display: none !important;
+}
+
+.h-product {
+  margin: 40px auto 80px auto;
+  max-width: 1100px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 35px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.h-product .product-image {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.h-product .product-price {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.h-product .product-info h2 {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 16px;
+}
+
+.cymbal-button-primary {
+  display: inline-block;
+  background-color: var(--primary);
+  color: #ffffff !important;
+  border: none;
+  padding: 12px 26px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  transition: all 0.2s ease;
+  text-decoration: none !important;
+}
+
+.cymbal-button-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.cymbal-button-secondary {
+  display: inline-block;
+  background: transparent;
+  color: var(--secondary);
+  border: 1px solid var(--border-color);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+.cymbal-button-secondary:hover {
+  background-color: #f1f5f9;
+}

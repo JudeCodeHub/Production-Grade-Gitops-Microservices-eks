@@ -1,0 +1,364 @@
+
+{{ define "product" }} {{ template "header" . }}
+
+<main role="main" class="product-main-view">
+  <style>
+    .product-main-view {
+      background-color: #f8fafc !important;
+      padding: 40px 0 70px 0;
+      width: 100% !important;
+    }
+
+    /* Breadcrumbs */
+    .product-breadcrumbs {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+
+    .product-breadcrumbs a {
+      color: #64748b;
+      text-decoration: none;
+    }
+
+    .product-breadcrumbs a:hover {
+      color: #4f46e5;
+    }
+
+    .product-breadcrumbs .separator {
+      margin: 0 8px;
+      color: #cbd5e1;
+    }
+
+    .product-breadcrumbs .current {
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    /* Product Card Container */
+    .product-showcase-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 50px;
+    }
+
+    /* Left Image Showcase */
+    .product-image-container {
+      width: 100%;
+      height: 480px;
+      background: #f1f5f9;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .product-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s ease;
+    }
+
+    .product-image-container:hover img {
+      transform: scale(1.04);
+    }
+
+    .product-feature-tag {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 6px;
+    }
+
+    /* Right Details Column */
+    .product-details-content {
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .product-category-chip {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #4f46e5;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .product-main-title {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+
+    .product-price-box {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .product-price-val {
+      font-size: 32px;
+      font-weight: 800;
+      color: #4f46e5;
+    }
+
+    .product-stock-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: #059669;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .product-desc-paragraph {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #475569;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 24px;
+    }
+
+    /* Add To Cart Form */
+    .add-to-cart-form-box {
+      margin-bottom: 32px;
+    }
+
+    .quantity-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .quantity-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .styled-quantity-select {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      cursor: pointer;
+      outline: none;
+      min-width: 80px;
+    }
+
+    .styled-quantity-select:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .btn-product-add-cart {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background-color: #4f46e5;
+      color: #ffffff !important;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 16px 28px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .btn-product-add-cart:hover {
+      background-color: #4338ca;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.45);
+    }
+
+    /* Product Trust Grid */
+    .product-perks-list {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 18px 20px;
+      border: 1px solid #e2e8f0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .product-perk-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .product-perk-entry span.icon {
+      font-size: 16px;
+    }
+
+    /* Ad Banner */
+    .ad-banner-box {
+      margin-top: 40px;
+      background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      border: 1px solid #c7d2fe;
+      border-radius: 14px;
+      padding: 20px 24px;
+      text-align: center;
+      color: #3730a3;
+      font-weight: 600;
+    }
+  </style>
+
+  <div class="container-fluid px-4 px-lg-5">
+    <nav class="product-breadcrumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="separator">/</span>
+      <a href="/#catalog-section">Collection</a>
+      <span class="separator">/</span>
+      <span class="current">{{ $.product.Item.Name }}</span>
+    </nav>
+
+    <div class="product-showcase-card">
+      <div class="row align-items-center">
+        <div class="col-12 col-lg-6 mb-4 mb-lg-0">
+          <div class="product-image-container">
+            <img
+              src="{{$.product.Item.Picture}}"
+              alt="{{$.product.Item.Name}}"
+            />
+            <span class="product-feature-tag">Curated Artisan</span>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="product-details-content">
+            <span class="product-category-chip">MJ Boutique Essentials</span>
+            <h1 class="product-main-title">{{ $.product.Item.Name }}</h1>
+
+            <div class="product-price-box">
+              <span class="product-price-val"
+                >{{ renderMoney $.product.Price }}</span
+              >
+              <span class="product-stock-badge">✓ In Stock</span>
+            </div>
+
+            <p class="product-desc-paragraph">
+              {{ $.product.Item.Description }}
+            </p>
+
+            <form method="POST" action="/cart" class="add-to-cart-form-box">
+              <input
+                type="hidden"
+                name="product_id"
+                value="{{$.product.Item.Id}}"
+              />
+
+              <div class="quantity-row">
+                <label for="quantity" class="quantity-label">Quantity:</label>
+                <select
+                  name="quantity"
+                  id="quantity"
+                  class="styled-quantity-select"
+                >
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn-product-add-cart">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
+                  ></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <span>Add To Shopping Cart</span>
+              </button>
+            </form>
+
+            <div class="product-perks-list">
+              <div class="product-perk-entry">
+                <span class="icon">🚚</span>
+                <span>Free shipping over $50</span>
+              </div>
+              <div class="product-perk-entry">
+                <span class="icon">🛡️</span>
+                <span>30-Day returns guaranteed</span>
+              </div>
+              <div class="product-perk-entry">
+                <span class="icon">🔒</span>
+                <span>256-Bit SSL safe payment</span>
+              </div>
+              <div class="product-perk-entry">
+                <span class="icon">🌱</span>
+                <span>100% Carbon neutral shipping</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{ if $.recommendations}}
+    <div class="product-recommendations-wrapper">
+      {{ template "recommendations" $.recommendations }}
+    </div>
+    {{ end }}
+
+    {{ if $.ad }}
+    <div class="ad-banner-box">
+      {{ with $.ad }}{{ template "text_ad" . }}{{ end }}
+    </div>
+    {{ end }}
+  </div>
+</main>
+
+{{ template "footer" . }} {{ end }}

@@ -1,0 +1,322 @@
+
+{{ define "header" }}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>MJ BOUTIQUE — Curated Essentials for Modern Living</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/static/styles/styles.css?v=3.0"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/static/styles/cart.css?v=3.0"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/static/styles/order.css?v=3.0"
+    />
+    <link rel="icon" type="image/png" href="/static/favicon.png?v=2" />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="/static/favicon.ico?v=2"
+    />
+
+    <style>
+      /* Hide scrollbar on all elements while keeping page scrollable */
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar,
+      *::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        background: transparent !important;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100vh;
+        overflow-x: hidden !important;
+        overflow-y: scroll !important;
+        -ms-overflow-style: none !important; /* IE and Edge */
+        scrollbar-width: none !important; /* Firefox */
+        height: auto !important;
+        background-color: #f8fafc !important;
+        font-family: "Plus Jakarta Sans", "DM Sans", sans-serif !important;
+      }
+
+      /* Remove any platform flags completely */
+      .platform-flag,
+      .local,
+      .aws-platform,
+      .gcp-platform,
+      .azure-platform {
+        display: none !important;
+      }
+
+      /* Full-width header without old maroon styles */
+      header,
+      .site-header {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: none !important;
+        width: 100% !important;
+      }
+
+      .top-announcement-bar {
+        background: #0f172a !important;
+        color: #e2e8f0 !important;
+        padding: 9px 0 !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        width: 100% !important;
+      }
+
+      .main-navbar {
+        background: #ffffff !important;
+        padding: 14px 0 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+        width: 100% !important;
+      }
+
+      .brand-logo-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .brand-name-bold {
+        font-size: 22px !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px !important;
+        color: #0f172a !important;
+      }
+
+      .brand-name-sub {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        letter-spacing: 2px !important;
+        color: #4f46e5 !important;
+      }
+
+      .currency-select-wrapper {
+        display: flex;
+        align-items: center;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0 12px;
+        height: 40px;
+      }
+
+      .currency-symbol {
+        font-weight: 700;
+        color: #4f46e5;
+        margin-right: 6px;
+      }
+
+      .currency-select {
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        color: #0f172a;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .cart-btn {
+        background: #eef2ff !important;
+        color: #4f46e5 !important;
+        padding: 8px 16px !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(79, 70, 229, 0.15) !important;
+        font-weight: 600 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        text-decoration: none !important;
+      }
+
+      .cart-btn:hover {
+        background: #4f46e5 !important;
+        color: #ffffff !important;
+      }
+
+      .cart-badge {
+        background: #ef4444;
+        color: white;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 1px 6px;
+        border-radius: 999px;
+        margin-left: 6px;
+      }
+
+      /* Eliminate any inner scroll container */
+      main,
+      .home-main {
+        overflow: visible !important;
+        height: auto !important;
+        min-height: calc(100vh - 200px) !important;
+        width: 100% !important;
+        background-color: #f8fafc !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="site-header">
+      <div class="top-announcement-bar">
+        <div
+          class="container-fluid px-4 px-lg-5 d-flex justify-content-between align-items-center"
+        >
+          <div class="announcement-text">
+            {{ if $.frontendMessage }} {{ $.frontendMessage }} {{ else }}
+            <span
+              >✨ <strong>Complimentary Express Shipping</strong> on all orders
+              over $50 • 30-Day Hassle-Free Returns</span
+            >
+            {{ end }}
+          </div>
+          <div
+            class="d-none d-md-block text-muted"
+            style="font-size: 12px; color: #94a3b8 !important"
+          >
+            Curated Lifestyle Essentials
+          </div>
+        </div>
+      </div>
+
+      <div class="navbar main-navbar">
+        <div
+          class="container-fluid px-4 px-lg-5 d-flex justify-content-between align-items-center"
+        >
+          <a
+            href="/"
+            class="d-flex align-items-center text-decoration-none"
+            style="gap: 12px"
+          >
+            <div class="brand-logo-mark">
+              <svg
+                width="34"
+                height="34"
+                viewBox="0 0 36 36"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect width="36" height="36" rx="10" fill="#4F46E5" />
+                <path
+                  d="M10 26L18 10L26 26"
+                  stroke="white"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M13 21H23"
+                  stroke="white"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <circle cx="18" cy="15" r="2.5" fill="#38BDF8" />
+              </svg>
+            </div>
+            <div class="d-flex flex-column" style="line-height: 1.1">
+              <span class="brand-name-bold">MJ</span>
+              <span class="brand-name-sub">BOUTIQUE</span>
+            </div>
+          </a>
+
+          <div class="d-flex align-items-center" style="gap: 16px">
+            {{ if $.show_currency }}
+            <form
+              method="POST"
+              action="/setCurrency"
+              id="currency_form"
+              class="m-0"
+            >
+              <div class="currency-select-wrapper">
+                <span class="currency-symbol"
+                  >{{ renderCurrencyLogo $.user_currency }}</span
+                >
+                <select
+                  name="currency_code"
+                  id="currency_code"
+                  onchange="document.getElementById('currency_form').submit()"
+                  class="currency-select"
+                  aria-label="Currency"
+                >
+                  {{range $.currencies}}
+                  <option
+                    value="{{.}}"
+                    {{if
+                    eq
+                    .
+                    $.user_currency}}selected="selected"
+                    {{end}}
+                  >
+                    {{.}}
+                  </option>
+                  {{end}}
+                </select>
+              </div>
+            </form>
+            {{ end }}
+
+            <a href="/cart" class="cart-btn" aria-label="View Cart">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
+                ></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              <span class="d-none d-sm-inline ml-2">Cart</span>
+              {{ if $.cart_size }}
+              <span class="cart-badge">{{$.cart_size}}</span>
+              {{ end }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+    {{ end }}
+  </body>
+</html>

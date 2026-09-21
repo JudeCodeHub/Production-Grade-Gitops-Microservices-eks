@@ -1,0 +1,46 @@
+---
+
+
+version: 9.3.0
+
+
+labels: {}
+
+annotations: {}
+
+
+count: 1
+
+elasticsearchRef:
+  name: eck-elasticsearch
+  namespace: logging
+
+
+
+config: null
+
+
+
+
+secureSettings: []
+
+
+monitoring: {}
+
+ingress:
+  enabled: false
+
+  annotations: {}
+
+  labels: {}
+
+
+  pathType: Prefix
+
+  hosts:
+    - host: chart-example.local
+      path: /
+
+  tls:
+    enabled: false
+

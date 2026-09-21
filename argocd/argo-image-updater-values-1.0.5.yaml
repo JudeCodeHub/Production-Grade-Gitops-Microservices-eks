@@ -1,0 +1,160 @@
+crds:
+  install: true
+  keep: true
+  annotations: {}
+  additionalLabels: {}
+
+replicaCount: 1
+image:
+  repository: quay.io/argoprojlabs/argocd-image-updater
+  pullPolicy: Always
+  tag: ""
+
+updateStrategy:
+  type: Recreate
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+namespaceOverride: ""
+
+createClusterRoles: true
+
+extraArgs: []
+
+extraEnv: []
+
+extraEnvFrom: []
+
+extraObjects: []
+
+initContainers: []
+
+priorityClassName: ""
+
+volumeMounts: []
+
+volumes: []
+
+config:
+  name: argocd-image-updater-config
+
+  kube.events: false
+
+  git.user: ""
+
+  git.email: ""
+
+  git.commit-message-template: ""
+
+  git.commit-signing-key: ""
+
+  git.commit-sign-off: false
+
+  git.commit-signing-method: ""
+
+  log.level: "info"
+
+  registries:
+    - name: ghcr
+      api_url: https://ghcr.io
+      prefix: ghcr.io
+      credentials: pullsecret:argocd/ghcr-secret
+
+  sshConfig:
+    name: argocd-image-updater-ssh-config
+    config: ""
+
+authScripts:
+  enabled: false
+  name: argocd-image-updater-authscripts
+  scripts: {}
+
+serviceAccount:
+  create: true
+  annotations: {}
+  labels: {}
+  name: ""
+
+podAnnotations: {}
+
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+rbac:
+  enabled: true
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+metrics:
+  enabled: false
+  service:
+    annotations: {}
+    labels: {}
+    servicePort: 8443
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    relabelings: []
+    metricRelabelings: []
+    selector: {}
+
+    namespace: ""
+    additionalLabels: {}
+
+containerPorts:
+  webhook: 8082
+  health: 8081
+  metrics: 8443
+
+service:
+  annotations: {}
+  labels: {}
+  type: ClusterIP
+  nodePortHttp: 30080
+  nodePortHttps: 30443
+  port: 8080
+  servicePortHttpName: server-port
+  loadBalancerClass: ""
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+  externalIPs: []
+  externalTrafficPolicy: Cluster
+  sessionAffinity: None
+
+ingress:
+  enabled: false
+  labels: {}
+  annotations: {}
+  ingressClassName: ""
+  hostname: ""
+  path: /webhook
+  pathType: Prefix
+
+  extraHosts: []
+
+  extraPaths: []
+
+  tls: []
+
+dualStack:
+  ipFamilyPolicy: ""
+  ipFamilies: []
+

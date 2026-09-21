@@ -1,0 +1,192 @@
+
+{{ define "recommendations" }}
+<section class="recommendations-showcase-section">
+  <style>
+    .recommendations-showcase-section {
+      width: 100% !important;
+      padding: 50px 0 30px 0;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 40px;
+    }
+
+    .rec-header-area {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .rec-badge-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: #4f46e5;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    .rec-main-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .rec-subtitle {
+      font-size: 14px;
+      color: #64748b;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .rec-grid-row {
+      margin-left: -12px;
+      margin-right: -12px;
+    }
+
+    .rec-col {
+      padding-left: 12px;
+      padding-right: 12px;
+      margin-bottom: 24px;
+    }
+
+    .rec-product-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rec-product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(79, 70, 229, 0.12);
+      border-color: rgba(79, 70, 229, 0.3);
+    }
+
+    .rec-img-link {
+      display: block;
+      position: relative;
+      width: 100%;
+      height: 200px;
+      background: #f8fafc;
+      overflow: hidden;
+      text-decoration: none;
+    }
+
+    .rec-img-link img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s ease;
+    }
+
+    .rec-product-card:hover .rec-img-link img {
+      transform: scale(1.06);
+    }
+
+    .rec-card-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .rec-body-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .rec-item-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.35;
+    }
+
+    .rec-item-title a {
+      color: #0f172a;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .rec-item-title a:hover {
+      color: #4f46e5;
+    }
+
+    .rec-footer-action {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-rec-view {
+      font-size: 13px;
+      font-weight: 700;
+      color: #4f46e5;
+      text-decoration: none !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: gap 0.2s ease;
+    }
+
+    .btn-rec-view:hover {
+      color: #4338ca;
+      gap: 7px;
+    }
+  </style>
+
+  <div class="container-fluid px-0">
+    <div class="rec-header-area">
+      <span class="rec-badge-tag">CURATED SELECTIONS</span>
+      <h3 class="rec-main-title">You May Also Like</h3>
+      <p class="rec-subtitle">
+        Handpicked essentials complementing your current items.
+      </p>
+    </div>
+
+    <div class="row rec-grid-row">
+      {{ range . }}
+      <div class="col-12 col-sm-6 col-md-3 rec-col">
+        <div class="rec-product-card">
+          <a href="/product/{{.Id}}" class="rec-img-link">
+            <img alt="{{.Name}}" src="{{.Picture}}" loading="lazy" />
+            <span class="rec-card-tag">Curated</span>
+          </a>
+          <div class="rec-body-content">
+            <h4 class="rec-item-title">
+              <a href="/product/{{.Id}}">{{ .Name }}</a>
+            </h4>
+            <div class="rec-footer-action">
+              <a href="/product/{{.Id}}" class="btn-rec-view">
+                <span>View Details</span>
+                <span>→</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</section>
+{{ end }}
