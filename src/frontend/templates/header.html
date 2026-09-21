@@ -48,7 +48,6 @@
     />
 
     <style>
-      /* Hide scrollbar on all elements while keeping page scrollable */
       html::-webkit-scrollbar,
       body::-webkit-scrollbar,
       *::-webkit-scrollbar {
@@ -66,14 +65,13 @@
         min-height: 100vh;
         overflow-x: hidden !important;
         overflow-y: scroll !important;
-        -ms-overflow-style: none !important; /* IE and Edge */
-        scrollbar-width: none !important; /* Firefox */
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
         height: auto !important;
         background-color: #f8fafc !important;
         font-family: "Plus Jakarta Sans", "DM Sans", sans-serif !important;
       }
 
-      /* Remove any platform flags completely */
       .platform-flag,
       .local,
       .aws-platform,
@@ -82,7 +80,6 @@
         display: none !important;
       }
 
-      /* Full-width header without old maroon styles */
       header,
       .site-header {
         background-color: #ffffff !important;
@@ -180,7 +177,6 @@
         margin-left: 6px;
       }
 
-      /* Eliminate any inner scroll container */
       main,
       .home-main {
         overflow: visible !important;
