@@ -56,7 +56,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
    terraform plan
    terraform apply -auto-approve
    ```
-   *Outputs will display the VPC ID and Bastion host public IP. An SSH private key (`bastion-key.pem`) will be generated in this directory.*
+   *Outputs will display the VPC ID and Bastion host public IP. An SSH private key (`mj-bastion-key.pem`) will be generated in this directory.*
 
 3. Provision the EKS cluster (must run after Step 1.2, since it reads the VPC ID, private subnets, and bastion security group from `Terraform-EC2`'s remote state):
    ```bash
@@ -73,8 +73,8 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 
 1. SSH into the Bastion host:
    ```bash
-   chmod 400 bastion-key.pem
-   ssh -i bastion-key.pem ubuntu@<BASTION_PUBLIC_IP>
+   chmod 400 mj-bastion-key.pem
+   ssh -i mj-bastion-key.pem ubuntu@<BASTION_PUBLIC_IP>
    ```
 
 2. Install the required DevOps CLI tools:
@@ -86,7 +86,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 3. Configure AWS credentials and update kubeconfig:
    ```bash
    aws configure
-   aws eks update-kubeconfig --region us-east-1 --name terraform-cluster
+   aws eks update-kubeconfig --region us-east-1 --name mj-cluster
    ```
 
 4. Verify cluster connectivity:
@@ -102,7 +102,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
    ```bash
    eksctl utils associate-iam-oidc-provider \
      --region us-east-1 \
-     --cluster terraform-cluster \
+     --cluster mj-cluster \
      --approve
    ```
 
@@ -118,7 +118,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 3. Create the IAM Service Account:
    ```bash
    eksctl create iamserviceaccount \
-     --cluster=terraform-cluster \
+     --cluster=mj-cluster \
      --namespace=kube-system \
      --name=aws-load-balancer-controller \
      --attach-policy-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
@@ -134,7 +134,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 
    helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller \
      -n kube-system \
-     --set clusterName=terraform-cluster \
+     --set clusterName=mj-cluster \
      --set region=us-east-1 \
      --set vpcId=<YOUR_VPC_ID> \
      --set serviceAccount.create=false \
@@ -239,7 +239,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
    export POLICY_ARN=$(aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text)
 
    eksctl create podidentityassociation \
-     --cluster terraform-cluster \
+     --cluster mj-cluster \
      --namespace external-dns \
      --service-account-name external-dns \
      --role-name external-dns-pod-identity-role \
@@ -412,7 +412,7 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 1. Add AWS EBS CSI driver addon for persistent Elasticsearch storage:
    ```bash
    eksctl create iamserviceaccount \
-     --cluster terraform-cluster \
+     --cluster mj-cluster \
      --namespace kube-system \
      --name ebs-csi-controller-sa \
      --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
@@ -420,7 +420,7 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
      --approve
 
    eksctl create addon \
-     --cluster terraform-cluster \
+     --cluster mj-cluster \
      --name aws-ebs-csi-driver \
      --version latest \
      --force

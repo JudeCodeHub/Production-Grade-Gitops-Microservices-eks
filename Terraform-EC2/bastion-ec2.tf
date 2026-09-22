@@ -4,7 +4,7 @@ resource "tls_private_key" "bastion_key" {
 }
 
 resource "aws_key_pair" "bastion_keypair" {
-  key_name   = "bastion-key"
+  key_name   = "mj-bastion-key"
   public_key = tls_private_key.bastion_key.public_key_openssh
 }
 
@@ -12,13 +12,13 @@ resource "aws_key_pair" "bastion_keypair" {
 
 resource "local_file" "bastion_private_key" {
   content         = tls_private_key.bastion_key.private_key_pem
-  filename        = "bastion-key.pem"
+  filename        = "mj-bastion-key.pem"
   file_permission = "0400"
 }
 
 
 resource "aws_security_group" "bastion_sg" {
-  name   = "bastion-sg"
+  name   = "mj-bastion-sg"
   vpc_id = module.vpc.vpc_id
 
   ingress {
@@ -38,7 +38,7 @@ resource "aws_security_group" "bastion_sg" {
   }
 
   tags = {
-    Name = "bastion-sg"
+    Name = "mj-bastion-sg"
   }
 }
 
@@ -47,7 +47,7 @@ resource "aws_security_group" "bastion_sg" {
 module "bastion_host" {
   source = "terraform-aws-modules/ec2-instance/aws"
 
-  name          = "bastion-host"
+  name          = "mj-bastion-host"
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
   key_name      = aws_key_pair.bastion_keypair.key_name

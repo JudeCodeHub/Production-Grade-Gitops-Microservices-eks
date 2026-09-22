@@ -1,5 +1,5 @@
 resource "aws_security_group" "add_sg_eks" {
-  name   = "additional-eks-sg"
+  name   = "mj-additional-eks-sg"
   vpc_id = data.terraform_remote_state.ec2.outputs.vpc_id
   ingress {
     description     = "HTTPS from bastion host"
@@ -18,7 +18,7 @@ resource "aws_security_group" "add_sg_eks" {
   }
 
   tags = {
-    Name = "additional-eks-sg"
+    Name = "mj-additional-eks-sg"
   }
 }
 
@@ -26,7 +26,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
 
-  name               = "terraform-cluster"
+  name               = "mj-cluster"
   kubernetes_version = "1.34"
 
   addons = {
@@ -50,7 +50,7 @@ module "eks" {
   additional_security_group_ids = [aws_security_group.add_sg_eks.id]
 
   eks_managed_node_groups = {
-    example = {
+    mj-nodes = {
       ami_type       = "AL2023_x86_64_STANDARD"
       instance_types = ["c7i-flex.large"]
 
