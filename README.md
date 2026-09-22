@@ -22,24 +22,12 @@ This project is a production-grade, GitOps-driven deployment of an enterprise 11
 
 ### Step 1: Infrastructure Provisioning with Terraform
 
-1. Navigate to the `terraform/` directory:
-   ```bash
-   cd terraform/
-   ```
+- **`Terraform-EC2/`** — VPC, subnets, and the bastion host. Rarely destroyed; just stop/start the EC2 instance from the AWS console when idle.
+- **`Terraform-EKS/`** — the EKS cluster and node group. Reads the VPC/bastion details from `Terraform-EC2`'s remote state instead of owning them, so it can be destroyed and recreated daily without affecting the other stack.
 
-2. Initialize and review the Terraform plan:
-   ```bash
-   terraform init
-   terraform plan
-   ```
+Both stacks require a shared S3 backend (this is now mandatory, not optional — `Terraform-EKS` depends on being able to read `Terraform-EC2`'s state via `terraform_remote_state`).
 
-3. Apply the infrastructure:
-   ```bash
-   terraform apply -auto-approve
-   ```
-   *Outputs will display the EKS cluster name, VPC ID, and Bastion host public IP. An SSH private key (`bastion-key.pem`) will be generated in the directory.*
-
-4. *(Optional)* Migrate local state to a remote Amazon S3 backend with DynamoDB locking:
+1. Create the shared S3 bucket used by both stacks (one bucket, two state file keys: `ec2/terraform.tfstate` and `eks/terraform.tfstate`):
    ```bash
    aws s3api create-bucket \
      --bucket <YOUR_TERRAFORM_BACKEND_BUCKET> \
@@ -59,20 +47,25 @@ This project is a production-grade, GitOps-driven deployment of an enterprise 11
        }]
      }'
    ```
-   Add the backend block inside `terraform/terraform.tf`:
-   ```hcl
-   terraform {
-     backend "s3" {
-       bucket = "<YOUR_TERRAFORM_BACKEND_BUCKET>"
-       key    = "s3-backend"
-       region = "us-east-1"
-     }
-   }
-   ```
-   Re-initialize to migrate state:
+   Replace `<YOUR_TERRAFORM_BACKEND_BUCKET>` in `Terraform-EC2/terraform.tf`, `Terraform-EKS/terraform.tf`, and `Terraform-EKS/remote_state.tf` with your actual bucket name. State locking uses S3's native lockfile support (`use_lockfile = true`) — no DynamoDB table needed.
+
+2. Provision the network and bastion first (`Terraform-EKS` depends on this stack's outputs):
    ```bash
-   terraform init -migrate-state
+   cd Terraform-EC2/
+   terraform init
+   terraform plan
+   terraform apply -auto-approve
    ```
+   *Outputs will display the VPC ID and Bastion host public IP. An SSH private key (`bastion-key.pem`) will be generated in this directory.*
+
+3. Provision the EKS cluster (must run after Step 1.2, since it reads the VPC ID, private subnets, and bastion security group from `Terraform-EC2`'s remote state):
+   ```bash
+   cd ../Terraform-EKS/
+   terraform init
+   terraform plan
+   terraform apply -auto-approve
+   ```
+   *Output will display the EKS cluster name.*
 
 ---
 
@@ -549,8 +542,18 @@ To avoid incurring cloud provider charges, tear down resources in the following 
    helm uninstall metrics-server -n kube-system
    ```
 
-4. Destroy AWS infrastructure via Terraform:
+4. Destroy AWS infrastructure via Terraform — **EKS first, then EC2** (`Terraform-EKS` reads `Terraform-EC2`'s remote state, so the EC2 stack must still exist while EKS is being destroyed):
    ```bash
-   cd terraform/
+   cd Terraform-EKS/
+   terraform destroy -auto-approve
+
+   cd ../Terraform-EC2/
    terraform destroy -auto-approve
    ```
+
+   *Day-to-day cost saving, without a full teardown:* the bastion (`Terraform-EC2`) can just be stopped from the AWS console/CLI instead of destroyed — it's cheap to leave stopped and its `.pem` key stays valid. The EKS control plane cannot be stopped, only destroyed, so if you're idling overnight it's normal to run only:
+   ```bash
+   cd Terraform-EKS/
+   terraform destroy -auto-approve
+   ```
+   and recreate it the next day with `terraform apply -auto-approve` from `Terraform-EKS/` — the bastion, VPC, and CLI tools installed on the bastion are untouched, but everything installed *inside* the cluster (Steps 3–11) needs reinstalling, and `aws eks update-kubeconfig` must be re-run since the new cluster has a fresh endpoint/certificate.
