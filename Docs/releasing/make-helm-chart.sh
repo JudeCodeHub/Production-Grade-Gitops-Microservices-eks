@@ -7,11 +7,12 @@ REPO_ROOT=$SCRIPT_DIR/../..
 log() { echo "$1" >&2; }
 
 TAG="${TAG:?TAG env variable must be specified}"
-HELM_CHART_REPO="us-docker.pkg.dev/online-boutique-ci/charts"
+GITHUB_USERNAME="${GITHUB_USERNAME:?GITHUB_USERNAME env variable must be specified}"
+HELM_CHART_REPO="ghcr.io/${GITHUB_USERNAME}"
 
-cd ${REPO_ROOT}/helm-chart
-gsed -i "s/^appVersion:.*/appVersion: \"${TAG}\"/" Chart.yaml
-gsed -i "s/^version:.*/version: ${TAG:1}/" Chart.yaml
+cd ${REPO_ROOT}/Helm-Chart
+sed -i "s/^appVersion:.*/appVersion: \"${TAG}\"/" Chart.yaml
+sed -i "s/^version:.*/version: ${TAG:1}/" Chart.yaml
 helm package .
 helm push onlineboutique-${TAG:1}.tgz oci://$HELM_CHART_REPO
 

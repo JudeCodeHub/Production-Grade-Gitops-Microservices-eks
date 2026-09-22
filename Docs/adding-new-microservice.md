@@ -1,61 +1,58 @@
 # Adding a new microservice
 
-This document outlines the steps required to add a new microservice to the Online Boutique application.
+This document outlines the steps required to add a new microservice to this project, based on how its actual pipeline works: GitHub Actions builds and pushes images to GHCR, and ArgoCD deploys them by syncing a Helm chart that is itself published to GHCR as an OCI artifact.
 
-## 1. Create a new directory
+## 1. Create a new directory and add your source code
 
-Create a new directory for your microservice within the `src/` directory. The directory name should be the name of your microservice.
+Create a new directory for your microservice inside `src/`, named after your service (e.g. `src/mynewservice/`). Add your source code and a `Dockerfile` there, following the structure of an existing service for your language.
 
-## 2. Add source code
+No CI configuration changes are needed for this step: `.github/workflows/ci-trigger.yaml` automatically detects any changed folder under `src/**` on a push to `main`, builds it, runs a Trivy vulnerability scan, and pushes the image to GitHub Container Registry (GHCR) — the same pipeline every existing service already goes through.
 
-Place your microservice's source code inside the newly created directory. The structure of this directory should follow the conventions of the existing microservices. For example, a Python-based service would include at minimum the following files:
+## 2. Define its gRPC contract (if it talks to other services)
 
-- `README.md`: The service's description and documentation.
-- `main.py`: The application's entry point.
-- `requirements.in`: A list of Python dependencies.
-- `Dockerfile`: To containerize the application.
+If your service needs to call, or be called by, another microservice, add its `service`/`message` definitions to `Protos/demo.proto`. Then regenerate the client/server stub code for your language the same way the existing services do — see `src/<an-existing-service>/genproto.sh` for the exact `protoc` invocation to copy.
 
-Take a look at existing microservices for inspiration.
+## 3. Add a Helm chart template
 
-## 3. Create a Dockerfile
+Create `Helm-Chart/templates/<your-service>.yaml` with a `Deployment` and `Service`, using an existing template (e.g. `Helm-Chart/templates/cartservice.yaml`) as a starting point. Keep the same conventions: resource names driven by `.Values`, and an `{{- if .Values.<yourService>.create }}` guard so the service can be toggled off.
 
-Create a `Dockerfile` in your microservice's directory. This file will define the steps to build a container image for your service.
+## 4. Register the image in the chart's values
 
-Refer to this example and tweak based on your new service's needs: https://github.com/GoogleCloudPlatform/microservices-demo/blob/main/src/frontend/Dockerfile
+Add your service to the `images:` map in `Helm-Chart/values.yaml`:
 
-## 4. Create Kubernetes manifests
+```yaml
+images:
+  mynewservice:
+    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/mynewservice
+    tag: v0.10.4
+```
 
-Create a new directory under `kustomize/components/` in the root of the repository for your microservice. Inside this directory, add the necessary Kubernetes YAML files for your new microservice. This typically includes:
+Add any other config your service's template needs (name, ports, resource limits) as its own top-level key, matching how `cartService:` or similar existing entries are structured.
 
-- A **Deployment** to manage your service's pods.
-- A **Service** to expose your microservice to other services within the cluster.
+## 5. Publish a new chart version to GHCR
 
-Ensure you follow the existing naming conventions and that the container image specified in the Deployment matches the one built by your `cloudbuild.yaml` and `skaffold.yaml` files.
+ArgoCD does not read `Helm-Chart/` directly — it pulls a packaged OCI Helm chart from GHCR, as configured in the root `kustomization.yaml`:
 
-Refer to this example and tweak based on your new service's needs: https://github.com/GoogleCloudPlatform/microservices-demo/tree/main/kustomize/components/shopping-assistant
+```yaml
+helmCharts:
+  - name: onlineboutique
+    repo: oci://ghcr.io/<YOUR_GITHUB_USERNAME>
+    version: 0.10.4
+```
 
-## 5. Update the root `kustomization.yaml` file
+Package and push the updated chart with the release script:
 
-Add your newly created component to the root kustomization file so it gets picked up by the deployment cycle.
+```bash
+TAG=v0.10.5 GITHUB_USERNAME=<your-github-username> ./Docs/releasing/make-helm-chart.sh
+```
 
-The file is available here: https://github.com/GoogleCloudPlatform/microservices-demo/blob/main/kustomize/kustomization.yaml
+This bumps `Helm-Chart/Chart.yaml`'s version, packages the chart, and pushes it to `oci://ghcr.io/<your-github-username>`. Make sure you're logged in first (`helm registry login ghcr.io`).
 
-## 6. Update the root `skaffold.yaml`
+## 6. Bump the version ArgoCD tracks
 
-Add your newly created service to the root skaffold file so the images build correctly.
+Update `version:` in the root `kustomization.yaml` to match the version you just pushed (e.g. `0.10.5`). Commit and push — ArgoCD will detect the change and sync your new service into the cluster automatically.
 
-The file is available here: https://github.com/GoogleCloudPlatform/microservices-demo/blob/main/skaffold.yaml
+## 7. Update documentation
 
-## 7. Update the Helm chart
-
-Add your newly created service to the Helm chart templates and default values.
-
-The chart is available here: https://github.com/GoogleCloudPlatform/microservices-demo/tree/main/helm-chart
-
-## 8. Update the documentation
-
-Finally, update the project's documentation to reflect the addition of your new microservice. This may include:
-
-- Adding a section to the main `README.md` if the service introduces significant new functionality.
-- Updating the architecture diagrams in the `docs/img` directory.
-- Adding a new document in the `docs` directory if the service requires detailed explanation.
+- Add your service to the architecture list in the root `README.md` if it introduces meaningful new functionality.
+- Update `docs/img`/`docs/images` diagrams if your service changes the overall architecture.
