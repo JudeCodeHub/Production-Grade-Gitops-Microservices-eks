@@ -8,7 +8,7 @@ log() { echo "$1" >&2; }
 
 TAG="${TAG:?TAG env variable must be specified}"
 GITHUB_USERNAME="${GITHUB_USERNAME:?GITHUB_USERNAME env variable must be specified}"
-HELM_CHART_REPO="ghcr.io/${GITHUB_USERNAME}"
+HELM_CHART_REPO="ghcr.io/${GITHUB_USERNAME,,}"
 
 cd ${REPO_ROOT}/Helm-Chart
 sed -i "s/^appVersion:.*/appVersion: \"${TAG}\"/" Chart.yaml
