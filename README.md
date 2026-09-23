@@ -77,6 +77,8 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 
 ### Step 2: Bastion Host Configuration & Cluster Access
 
+The EKS cluster is created with `endpoint_public_access = false` (see `Terraform-EKS/eks.tf`), meaning the Kubernetes API server itself is private — it cannot be reached from your laptop, only from inside the VPC. This is why the bastion exists: it's the one host that sits inside the VPC's public subnet with a route to the cluster, so every `kubectl`/`helm`/`eksctl` command in every step from here on runs *on the bastion*, not on your local machine.
+
 1. SSH into the Bastion host:
    ```bash
    chmod 400 mj-bastion-key.pem
@@ -103,6 +105,8 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 ---
 
 ### Step 3: AWS Load Balancer Controller Installation
+
+Kubernetes on its own has no concept of an AWS Application Load Balancer — it only knows about its own internal objects (`Service`, `Ingress`, `Gateway`). The AWS Load Balancer Controller (LBC) is the bridge: it watches for those Kubernetes objects and, on seeing one, calls the real AWS API to actually create/update an ALB, its listeners, and its target groups. Nothing in Step 4 onward that touches the ALB will work until this controller is running and correctly authorized via IAM.
 
 1. Associate the IAM OIDC Provider:
    ```bash
@@ -159,6 +163,8 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 
 ### Step 4: Kubernetes Gateway API & ALB Gateway Deployment
 
+This step creates the single, shared ALB that every exposed service in this project routes through — the app, ArgoCD, Grafana, Prometheus, and Kibana all attach their own `HTTPRoute` to this one `Gateway` later, rather than each getting its own load balancer. Gateway API is used here instead of a classic `Ingress` because it separates concerns cleanly: the `GatewayClass`/`Gateway` (infrastructure-level, set up once) is distinct from each app's own `HTTPRoute` (added independently per service), and it's what makes ExternalDNS's automatic DNS management in Step 5 possible.
+
 1. Install the official Gateway API CRDs:
    ```bash
    # Standard Gateway API CRDs
@@ -170,10 +176,10 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 
 2. Deploy the `GatewayClass`:
    ```bash
-   kubectl apply -f gateway-api-manifests/gateway-class.yaml
+   kubectl apply -f Gateway-API-Manifests/gateway-class.yaml
    ```
 
-3. Configure the `LoadBalancerConfiguration` with your ACM Certificate ARN in `gateway-api-manifests/alb-config.yaml`:
+3. Configure the `LoadBalancerConfiguration` with your ACM Certificate ARN in `Gateway-API-Manifests/alb-config.yaml`:
    ```yaml
    apiVersion: gateway.k8s.aws/v1
    kind: LoadBalancerConfiguration
@@ -188,10 +194,10 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
    ```
    Apply:
    ```bash
-   kubectl apply -f gateway-api-manifests/alb-config.yaml
+   kubectl apply -f Gateway-API-Manifests/alb-config.yaml
    ```
 
-4. Deploy the internet-facing `Gateway` (`gateway-api-manifests/gateway.yaml`):
+4. Deploy the internet-facing `Gateway` (`Gateway-API-Manifests/gateway.yaml`):
    ```yaml
    apiVersion: gateway.networking.k8s.io/v1beta1
    kind: Gateway
@@ -223,7 +229,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
    ```
    Apply and verify:
    ```bash
-   kubectl apply -f gateway-api-manifests/gateway.yaml
+   kubectl apply -f Gateway-API-Manifests/gateway.yaml
    kubectl get gateway
    ```
 
@@ -231,11 +237,13 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 
 ### Step 5: ExternalDNS Setup with EKS Pod Identity
 
+Once the ALB exists (Step 4), it has a long, auto-generated AWS hostname — not `app.devopshero2.shop`. ExternalDNS is the piece that watches `HTTPRoute` objects, reads the hostname each one declares, and automatically creates/updates the matching Route 53 record to point at the ALB. This runs continuously, so every time the ALB is recreated (a new hostname each time), DNS re-syncs on its own within about a minute — no manual Route 53 edits, ever, even across a full cluster rebuild. EKS Pod Identity is used here instead of static AWS keys so the pod authenticates to Route 53 without any credentials stored in the cluster.
+
 1. Create Route 53 IAM Policy:
    ```bash
    aws iam create-policy \
      --policy-name AllowExternalDNSUpdates \
-     --policy-document file://external-dns/policy.json
+     --policy-document file://External-DNS/policy.json
    ```
 
 2. Create the `external-dns` namespace and link permissions using **EKS Pod Identity**:
@@ -258,7 +266,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
    helm repo update
 
    helm upgrade -i external-dns external-dns/external-dns \
-     -f external-dns/external-dns-values-1.20.0.yaml \
+     -f External-DNS/external-dns-values-1.20.0.yaml \
      -n external-dns \
      --version 1.20.0
    ```
@@ -271,6 +279,8 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 ---
 
 ### Step 6: Deploy ArgoCD with Gateway API
+
+Everything up to this point (Terraform, LBC, Gateway, ExternalDNS) is infrastructure — none of it deploys the actual application. ArgoCD is the GitOps controller: it continuously watches this Git repository and keeps the cluster's actual state in sync with whatever is committed. From here on, deploying or updating the app is never a manual `kubectl apply` — it's a `git push`, and ArgoCD does the rest. `server.insecure: true` is set because TLS is already terminated at the ALB (Step 4); ArgoCD itself doesn't need to also handle HTTPS.
 
 1. Add the Argo Helm repository:
    ```bash
@@ -306,12 +316,14 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 
 ### Step 7: Continuous Integration (CI) with GitHub Actions & GHCR
 
+This is the "CI" half of CI/CD — it only builds and publishes images, it never touches the cluster or Git manifests directly. That separation matters: it means CI can be re-run, retried, or fail without any risk of partially updating what's actually deployed. The link between "a new image exists" and "the cluster runs it" is handled entirely separately, by Image Updater (Step 9).
+
 The CI pipeline is structured across two workflows inside `.github/workflows/`:
 
-1. **`ci-trigger.yaml`**: Detects changes under `src/**` on commits to `main` and dispatches builds dynamically per modified microservice.
-2. **`microservice-ci.yaml`**: Reusable workflow that:
+1. **`ci-trigger.yaml`**: Detects which service folder(s) actually changed under `src/**` on a push to `main`, and only builds those — an 11-service repo doesn't need to rebuild all 11 images for a one-line fix in one service. A manual "Run workflow" trigger builds all of them at once, useful for the first deploy or a full refresh.
+2. **`microservice-ci.yaml`**: Reusable workflow (called once per changed service) that:
    - Sets up Docker Buildx with GitHub Actions layer caching.
-   - Builds container image tagged with `sha-<COMMIT_HASH>`.
+   - Builds the container image, tagged `v1.0.<GITHUB_RUN_NUMBER>` — an auto-incrementing version rather than a raw commit hash, chosen specifically so Image Updater can compare versions using its `semver` strategy.
    - Executes **Trivy security scan** for HIGH and CRITICAL vulnerabilities.
    - Pushes verified images to GitHub Container Registry (`ghcr.io`).
 
@@ -320,6 +332,8 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 ---
 
 ### Step 8: GitOps Continuous Delivery (CD) with ArgoCD & Kustomize
+
+This is where an image built in Step 7 actually becomes a running pod. `kustomization.yaml` pulls the `onlineboutique` Helm chart as a packaged OCI artifact from GHCR (the chart itself rarely changes) and combines it with `Helm-Chart/values.yaml`, a plain file tracked directly in this Git repo (which changes constantly — it's what holds each service's current image tag). ArgoCD watches this repo and renders that combination into the cluster automatically. This split — stable chart in a registry, fast-changing values in Git — is what lets Image Updater (Step 9) update a deployment just by editing one file, without ever needing to republish the chart.
 
 1. Verify `kustomization.yaml` at the project root connects the Helm chart and infrastructure HTTPRoutes:
    ```yaml
@@ -355,6 +369,8 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 
 ### Step 9: Automated Container Image Promotion with ArgoCD Image Updater
 
+Without this step, "update a service" means manually checking GHCR for the newest tag and hand-editing `Helm-Chart/values.yaml` every single time — exactly the tedious, error-prone process this whole GitOps setup is meant to avoid. Image Updater is a separate controller from both CI and ArgoCD: it watches GHCR directly, and the moment it sees a newer valid version for any of the 11 images, it edits `values.yaml` and commits that change to Git itself. ArgoCD (Step 8) then picks up that commit like any other and syncs it. The result is a fully closed loop — a code push eventually becomes a running change in the cluster with no human touching `values.yaml`, `kubectl`, or `helm` in between.
+
 1. Create a secret so Image Updater can read tag lists from GHCR:
    ```bash
    kubectl create secret docker-registry ghcr-secret \
@@ -389,7 +405,12 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 
 ### Step 10: Observability Stack Setup
 
+Everything so far gets the app running and deploying itself automatically — this step is what lets you actually *see* what's happening inside it, both while it's healthy and when something breaks. It has two independent halves: metrics/alerting (10.1) and logs (10.2), each solving a different question — "is something wrong right now" vs. "what actually happened, in detail, after the fact."
+
 #### 10.1 Monitoring with Kube-Prometheus-Stack & Slack Alerts
+
+This half answers "is the cluster healthy right now, and will I find out if it isn't." Prometheus continuously scrapes metrics from every pod and node; Grafana turns those into dashboards a human can actually read; Alertmanager evaluates alert rules against those metrics and pushes a message to Slack the moment something crosses a threshold — so problems surface on their own instead of requiring someone to be staring at a dashboard.
+
 1. Create a Kubernetes secret for Slack alerting webhook:
    ```bash
    kubectl create namespace monitoring
@@ -426,6 +447,9 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
    - **Prometheus:** `https://prometheus.devopshero2.shop`
 
 #### 10.2 Centralized Logging with ECK, Filebeat & Kibana
+
+This half answers "what actually happened," in detail, after the fact — metrics tell you *that* something went wrong, logs tell you *why*. With 11 independent services, checking `kubectl logs` one pod at a time doesn't scale; Filebeat runs as a DaemonSet (one copy per node, automatically, forever) reading every container's logs on that node and shipping them into one central Elasticsearch index, searchable across every service and namespace from a single Kibana screen.
+
 1. Add AWS EBS CSI driver addon for persistent Elasticsearch storage:
    ```bash
    eksctl create iamserviceaccount \
@@ -492,6 +516,8 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 
 ### Step 11: Scaling & Reliability
 
+Prometheus (Step 10) stores metrics for dashboards and alerting, but Kubernetes' own autoscaler doesn't read from Prometheus — it needs a separate, lightweight metrics source it can query directly and frequently. That's what Metrics Server provides (`kubectl top` and the HPA both depend on it). Once it's running, the Horizontal Pod Autoscaler can watch live CPU usage and add or remove `frontend` pods automatically as real traffic (from the load generator or real users) rises and falls, instead of running a fixed number of replicas regardless of load.
+
 1. Install the Kubernetes Metrics Server:
    ```bash
    helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
@@ -510,7 +536,7 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 
 3. Deploy Horizontal Pod Autoscaler (HPA) for frontend:
    ```bash
-   kubectl apply -f scaling/frontend-hpa.yaml
+   kubectl apply -f Scaling/frontend-hpa.yaml
    ```
 
 4. Monitor live autoscaling under load:
@@ -538,11 +564,11 @@ To avoid incurring cloud provider charges, tear down resources in the following 
    kubectl delete -f Observability/target-grp-grafana.yaml
    kubectl delete -f Observability/HTTProute-prometheus.yaml
    kubectl delete -f Observability/target-grp-prometheus.yaml
-   kubectl delete -f microservices-extra-kube-manifests/HTTProute.yaml
-   kubectl delete -f microservices-extra-kube-manifests/target-grp.yaml
-   kubectl delete -f gateway-api-manifests/gateway.yaml
-   kubectl delete -f gateway-api-manifests/alb-config.yaml
-   kubectl delete -f gateway-api-manifests/gateway-class.yaml
+   kubectl delete -f Microservices-Extra-Kube-Manifests/HTTProute.yaml
+   kubectl delete -f Microservices-Extra-Kube-Manifests/target-grp.yaml
+   kubectl delete -f Gateway-API-Manifests/gateway.yaml
+   kubectl delete -f Gateway-API-Manifests/alb-config.yaml
+   kubectl delete -f Gateway-API-Manifests/gateway-class.yaml
    ```
 
 3. Uninstall Helm charts:
