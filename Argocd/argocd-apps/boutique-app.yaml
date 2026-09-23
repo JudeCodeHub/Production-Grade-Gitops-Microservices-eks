@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: boutique-app
+  name: mj-boutique-app
   namespace: argocd
 spec:
   project: default
@@ -13,7 +13,7 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: boutique-app
+    namespace: mj-boutique-app
 
   syncPolicy:
     automated:
