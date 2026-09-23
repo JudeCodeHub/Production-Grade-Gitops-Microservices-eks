@@ -6,34 +6,34 @@ images:
     tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   cartservice:
     repository: ghcr.io/judecodehub/microservices-demo/cartservice
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   checkoutservice:
     repository: ghcr.io/judecodehub/microservices-demo/checkoutservice
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   currencyservice:
     repository: ghcr.io/judecodehub/microservices-demo/currencyservice
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   emailservice:
     repository: ghcr.io/judecodehub/microservices-demo/emailservice
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   frontend:
     repository: ghcr.io/judecodehub/microservices-demo/frontend
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   loadgenerator:
     repository: ghcr.io/judecodehub/microservices-demo/loadgenerator
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   paymentservice:
     repository: ghcr.io/judecodehub/microservices-demo/paymentservice
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   productcatalogservice:
     repository: ghcr.io/judecodehub/microservices-demo/productcatalogservice
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   recommendationservice:
     repository: ghcr.io/judecodehub/microservices-demo/recommendationservice
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   shippingservice:
     repository: ghcr.io/judecodehub/microservices-demo/shippingservice
-    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
+    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
 
 serviceAccounts:
   create: true
