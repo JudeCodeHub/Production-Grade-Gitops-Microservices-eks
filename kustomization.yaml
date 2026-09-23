@@ -9,6 +9,6 @@ helmCharts:
   - name: onlineboutique
     repo: oci://ghcr.io/judecodehub
     version: 0.10.4
-    releaseName: boutique-app
-    namespace: boutique-app
+    releaseName: mj-boutique-app
+    namespace: mj-boutique-app
     valuesFile: Helm-Chart/values.yaml
