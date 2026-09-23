@@ -141,9 +141,6 @@ sources:
   - service
   - ingress
   - gateway-httproute
-  - gateway-tlsroute
-  - gateway-tcproute
-  - gateway-udproute
 
 policy: upsert-only
 
