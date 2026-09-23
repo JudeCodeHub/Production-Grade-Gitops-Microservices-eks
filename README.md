@@ -278,7 +278,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
    helm repo update
    ```
 
-2. Deploy ArgoCD using `argocd/argocd-values-9.4.0.yaml`:
+2. Deploy ArgoCD using `Argocd/argocd-values-9.4.0.yaml`:
    - Configured with `server.insecure: true` (TLS terminated at ALB).
    - Configured with `kustomize.buildOptions: "--enable-helm"`.
    - Exposes `argocd.devopshero2.shop` via Gateway API HTTPRoute.
@@ -286,14 +286,14 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
    ```bash
    helm install argo-cd argo/argo-cd \
      -n argocd \
-     -f argocd/argocd-values-9.4.0.yaml \
+     -f Argocd/argocd-values-9.4.0.yaml \
      --version 9.4.0 \
      --create-namespace
    ```
 
 3. Apply TargetGroupConfiguration for ArgoCD:
    ```bash
-   kubectl apply -f argocd/target-grp-config.yaml
+   kubectl apply -f Argocd/target-grp-config.yaml
    ```
 
 4. Retrieve the initial admin password:
@@ -327,27 +327,27 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
    kind: Kustomization
 
    resources:
-     - microservices-extra-kube-manifests/HTTProute.yaml
-     - microservices-extra-kube-manifests/target-grp.yaml
+     - Microservices-Extra-Kube-Manifests/HTTProute.yaml
+     - Microservices-Extra-Kube-Manifests/target-grp.yaml
 
    helmCharts:
      - name: onlineboutique
        repo: oci://ghcr.io/<YOUR_GITHUB_USERNAME>
        version: 0.10.4
-       releaseName: boutique-app
-       namespace: boutique-app
-       valuesFile: helm-chart/values.yaml
+       releaseName: mj-boutique-app
+       namespace: mj-boutique-app
+       valuesFile: Helm-Chart/values.yaml
    ```
 
-2. Update `argocd/argocd-apps/boutique-app.yaml` with your repository URL and apply:
+2. Update `Argocd/argocd-apps/boutique-app.yaml` with your repository URL and apply:
    ```bash
-   kubectl apply -f argocd/argocd-apps/boutique-app.yaml
+   kubectl apply -f Argocd/argocd-apps/boutique-app.yaml
    ```
 
 3. Verify the application sync in the ArgoCD UI or via CLI:
    ```bash
-   kubectl get pods -n boutique-app
-   kubectl get httproute -n boutique-app
+   kubectl get pods -n mj-boutique-app
+   kubectl get httproute -n mj-boutique-app
    ```
    Access Online Boutique: `https://app.devopshero2.shop`
 
@@ -355,24 +355,35 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 
 ### Step 9: Automated Container Image Promotion with ArgoCD Image Updater
 
-1. Install Argo CD Image Updater:
+1. Create a secret so Image Updater can read tag lists from GHCR:
+   ```bash
+   kubectl create secret docker-registry ghcr-secret \
+     -n argocd \
+     --docker-server=ghcr.io \
+     --docker-username=<YOUR_GITHUB_USERNAME> \
+     --docker-password=<YOUR_CLASSIC_PAT_WITH_read:packages> \
+     --docker-email=<YOUR_EMAIL>
+   ```
+
+2. Install Argo CD Image Updater:
    ```bash
    helm upgrade -i argo-image-updater argo/argocd-image-updater \
      -n argocd \
-     -f argocd/argo-image-updater-values-1.0.5.yaml \
+     -f Argocd/argo-image-updater-values-1.0.5.yaml \
      --version 1.0.5
    ```
 
-2. Apply the ImageUpdater custom resource (`argocd/image-updater.yaml`):
+3. Apply the ImageUpdater custom resource (`Argocd/image-updater.yaml`):
    ```bash
-   kubectl apply -f argocd/image-updater.yaml
+   kubectl apply -f Argocd/image-updater.yaml
    ```
 
-3. Verify Image Updater status:
+4. Verify Image Updater status:
    ```bash
    kubectl get imageupdater -n argocd
+   kubectl logs -n argocd deploy/argo-image-updater-argocd-image-updater --tail=50
    ```
-   *When new container image tags matching `^sha-[a-f0-9]{7,40}$` are pushed by GitHub Actions, ArgoCD Image Updater automatically commits the updated tag to Git, triggering immediate rollout.*
+   *When a new container image tag matching `^v1\.0\.[0-9]+$` is pushed by GitHub Actions, ArgoCD Image Updater automatically commits the updated tag into `Helm-Chart/values.yaml`, triggering an ArgoCD sync.*
 
 ---
 
@@ -383,7 +394,7 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
    ```bash
    kubectl create namespace monitoring
    kubectl create secret generic alertmanager-slack-webhook \
-     --from-literal=url='<YOUR_SLACK_WEBHOOK_URL>' \
+     --from-literal=slack-webhook-url='<YOUR_SLACK_WEBHOOK_URL>' \
      -n monitoring
    ```
 
@@ -394,17 +405,17 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 
    helm upgrade -i kube-prometheus-stack prometheus-community/kube-prometheus-stack \
      -n monitoring \
-     -f observability/helm-values/kube-prom-stack-81.6.3.yaml \
+     -f Observability/helm-values/kube-prom-stack-81.6.3.yaml \
      --version 81.6.3
    ```
 
 3. Expose Grafana and Prometheus via Gateway API:
    ```bash
-   kubectl apply -f observability/HTTProute-grafana.yaml
-   kubectl apply -f observability/target-grp-grafana.yaml
+   kubectl apply -f Observability/HTTProute-grafana.yaml
+   kubectl apply -f Observability/target-grp-grafana.yaml
 
-   kubectl apply -f observability/HTTProute-prometheus.yaml
-   kubectl apply -f observability/target-grp-prometheus.yaml
+   kubectl apply -f Observability/HTTProute-prometheus.yaml
+   kubectl apply -f Observability/target-grp-prometheus.yaml
    ```
 
 4. Retrieve Grafana admin password:
@@ -434,27 +445,26 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 
 2. Apply the EBS StorageClass:
    ```bash
-   kubectl apply -f observability/storageclass.yaml
+   kubectl apply -f Observability/storageclass.yaml
    ```
 
-3. Install the Elastic Cloud on Kubernetes (ECK) operator:
+3. Create the `logging` namespace and install the Elastic Cloud on Kubernetes (ECK) operator into it — kept in the same namespace as Elasticsearch, Kibana, and Filebeat below, matching the architecture diagram:
    ```bash
+   kubectl create ns logging
+
    helm repo add elastic https://helm.elastic.co
    helm repo update
 
    helm upgrade -i elastic-operator elastic/eck-operator \
-     -n elastic-system \
-     --create-namespace \
+     -n logging \
      --version 2.14.0
    ```
 
 4. Deploy Elasticsearch and Kibana:
    ```bash
-   kubectl create ns logging
-
    helm upgrade -i eck-kibana elastic/eck-kibana \
      -n logging \
-     -f observability/helm-values/eck-kibana-0.18.0.yaml \
+     -f Observability/helm-values/eck-kibana-0.18.0.yaml \
      --version 0.18.0
    ```
 
@@ -462,14 +472,14 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
    ```bash
    helm upgrade -i eck-beats elastic/eck-beats \
      -n logging \
-     -f observability/helm-values/eck-beats-0.18.0.yaml \
+     -f Observability/helm-values/eck-beats-0.18.0.yaml \
      --version 0.18.0
    ```
 
 6. Expose Kibana via Gateway API:
    ```bash
-   kubectl apply -f observability/HTTProute-kibana.yaml
-   kubectl apply -f observability/target-grp-kibana.yaml
+   kubectl apply -f Observability/HTTProute-kibana.yaml
+   kubectl apply -f Observability/target-grp-kibana.yaml
    ```
 
 7. Retrieve the `elastic` user password:
@@ -495,7 +505,7 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 2. Verify node metrics are reporting:
    ```bash
    kubectl top nodes
-   kubectl top pods -n boutique-app
+   kubectl top pods -n mj-boutique-app
    ```
 
 3. Deploy Horizontal Pod Autoscaler (HPA) for frontend:
@@ -505,7 +515,7 @@ Ensure GitHub repository settings grant **Read and Write permissions** for GitHu
 
 4. Monitor live autoscaling under load:
    ```bash
-   kubectl get hpa -n boutique-app --watch
+   kubectl get hpa -n mj-boutique-app --watch
    ```
 
 ---
@@ -516,18 +526,18 @@ To avoid incurring cloud provider charges, tear down resources in the following 
 
 1. Delete ArgoCD applications and workloads:
    ```bash
-   kubectl delete -f argocd/argocd-apps/boutique-app.yaml
-   kubectl delete -f argocd/image-updater.yaml
+   kubectl delete -f Argocd/argocd-apps/boutique-app.yaml
+   kubectl delete -f Argocd/image-updater.yaml
    ```
 
 2. Delete Gateway API and HTTPRoute resources:
    ```bash
-   kubectl delete -f observability/HTTProute-kibana.yaml
-   kubectl delete -f observability/target-grp-kibana.yaml
-   kubectl delete -f observability/HTTProute-grafana.yaml
-   kubectl delete -f observability/target-grp-grafana.yaml
-   kubectl delete -f observability/HTTProute-prometheus.yaml
-   kubectl delete -f observability/target-grp-prometheus.yaml
+   kubectl delete -f Observability/HTTProute-kibana.yaml
+   kubectl delete -f Observability/target-grp-kibana.yaml
+   kubectl delete -f Observability/HTTProute-grafana.yaml
+   kubectl delete -f Observability/target-grp-grafana.yaml
+   kubectl delete -f Observability/HTTProute-prometheus.yaml
+   kubectl delete -f Observability/target-grp-prometheus.yaml
    kubectl delete -f microservices-extra-kube-manifests/HTTProute.yaml
    kubectl delete -f microservices-extra-kube-manifests/target-grp.yaml
    kubectl delete -f gateway-api-manifests/gateway.yaml

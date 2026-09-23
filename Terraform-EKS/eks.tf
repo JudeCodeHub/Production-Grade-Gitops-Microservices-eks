@@ -52,7 +52,7 @@ module "eks" {
   eks_managed_node_groups = {
     mj-nodes = {
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["c7i-flex.large"]
+      instance_types = ["c7i-flex.xlarge"]
 
       min_size     = 2
       max_size     = 10
