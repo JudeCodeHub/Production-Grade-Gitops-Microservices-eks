@@ -19,9 +19,9 @@ jobs:
         env:
           OWNER: ${{ github.repository_owner }}
           SERVICE: ${{ inputs.service }}
-          SHA: ${{ github.sha }}
+          RUN_NUMBER: ${{ github.run_number }}
         run: |
-          echo "IMAGE_NAME=ghcr.io/${OWNER,,}/microservices-demo/${SERVICE}:sha-${SHA}" >> "$GITHUB_ENV"
+          echo "IMAGE_NAME=ghcr.io/${OWNER,,}/microservices-demo/${SERVICE}:v1.0.${RUN_NUMBER}" >> "$GITHUB_ENV"
           if [ -f "src/${SERVICE}/Dockerfile" ]; then
             echo "BUILD_CONTEXT=./src/${SERVICE}" >> "$GITHUB_ENV"
           else
