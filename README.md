@@ -145,7 +145,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
      --set vpcId=<YOUR_VPC_ID> \
      --set serviceAccount.create=false \
      --set serviceAccount.name=aws-load-balancer-controller \
-     --set controllerConfig.featureGates.NLBGatewayAPI=true \
+     --set controllerConfig.featureGates.NLBGatewayAPI=false \
      --set controllerConfig.featureGates.ALBGatewayAPI=true \
      --version 3.0.0
    ```
