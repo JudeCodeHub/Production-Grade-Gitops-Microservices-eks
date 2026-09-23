@@ -1,4 +1,3 @@
-//Testing CiCD
 package main
 
 import (
