@@ -175,7 +175,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
 
 3. Configure the `LoadBalancerConfiguration` with your ACM Certificate ARN in `gateway-api-manifests/alb-config.yaml`:
    ```yaml
-   apiVersion: gateway.k8s.aws/v1beta1
+   apiVersion: gateway.k8s.aws/v1
    kind: LoadBalancerConfiguration
    metadata:
      name: app-gw-lbconfig
