@@ -26,6 +26,16 @@ This project is a production-grade, GitOps-driven deployment of an enterprise 11
 
 ## 3. Implementation Steps
 
+**Placeholders used throughout this guide:**
+
+| Placeholder | What it is | Where you actually set it |
+|---|---|---|
+| `<YOUR_CLUSTER_NAME>` | Your EKS cluster's name | `name` in `Terraform-EKS/eks.tf` |
+| `<YOUR_APP_NAME>` | The app's Helm release/namespace name | `releaseName`/`namespace` in `kustomization.yaml`, and `destination.namespace` in `Argocd/argocd-apps/boutique-app.yaml` |
+| `<YOUR_BASTION_KEY_NAME>.pem` | The bastion's private key filename | `filename` in the `local_file` resource in `Terraform-EC2/bastion-ec2.tf` |
+
+These aren't command-line flags you pass at runtime — they're names hardcoded into the files above. Pick your own values there first, then use the exact same values everywhere that placeholder appears in the commands below.
+
 ### Step 1: Infrastructure Provisioning with Terraform
 
 - **`Terraform-EC2/`** — VPC, subnets, and the bastion host. Rarely destroyed; just stop/start the EC2 instance from the AWS console when idle.
@@ -62,7 +72,7 @@ Both stacks require a shared S3 backend (this is now mandatory, not optional —
    terraform plan
    terraform apply -auto-approve
    ```
-   *Outputs will display the VPC ID and Bastion host public IP. An SSH private key (`mj-bastion-key.pem`) will be generated in this directory.*
+   *Outputs will display the VPC ID and Bastion host public IP. An SSH private key (`<YOUR_BASTION_KEY_NAME>.pem`) will be generated in this directory.*
 
 3. Provision the EKS cluster (must run after Step 1.2, since it reads the VPC ID, private subnets, and bastion security group from `Terraform-EC2`'s remote state):
    ```bash
@@ -81,8 +91,8 @@ The EKS cluster is created with `endpoint_public_access = false` (see `Terraform
 
 1. SSH into the Bastion host:
    ```bash
-   chmod 400 mj-bastion-key.pem
-   ssh -i mj-bastion-key.pem ubuntu@<BASTION_PUBLIC_IP>
+   chmod 400 <YOUR_BASTION_KEY_NAME>.pem
+   ssh -i <YOUR_BASTION_KEY_NAME>.pem ubuntu@<BASTION_PUBLIC_IP>
    ```
 
 2. Install the required DevOps CLI tools:
@@ -94,7 +104,7 @@ The EKS cluster is created with `endpoint_public_access = false` (see `Terraform
 3. Configure AWS credentials and update kubeconfig:
    ```bash
    aws configure
-   aws eks update-kubeconfig --region us-east-1 --name mj-cluster
+   aws eks update-kubeconfig --region us-east-1 --name <YOUR_CLUSTER_NAME>
    ```
 
 4. Verify cluster connectivity:
@@ -112,7 +122,7 @@ Kubernetes on its own has no concept of an AWS Application Load Balancer — it 
    ```bash
    eksctl utils associate-iam-oidc-provider \
      --region us-east-1 \
-     --cluster mj-cluster \
+     --cluster <YOUR_CLUSTER_NAME> \
      --approve
    ```
 
@@ -128,7 +138,7 @@ Kubernetes on its own has no concept of an AWS Application Load Balancer — it 
 3. Create the IAM Service Account:
    ```bash
    eksctl create iamserviceaccount \
-     --cluster=mj-cluster \
+     --cluster=<YOUR_CLUSTER_NAME> \
      --namespace=kube-system \
      --name=aws-load-balancer-controller \
      --attach-policy-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
@@ -144,7 +154,7 @@ Kubernetes on its own has no concept of an AWS Application Load Balancer — it 
 
    helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller \
      -n kube-system \
-     --set clusterName=mj-cluster \
+     --set clusterName=<YOUR_CLUSTER_NAME> \
      --set region=us-east-1 \
      --set vpcId=<YOUR_VPC_ID> \
      --set serviceAccount.create=false \
@@ -253,7 +263,7 @@ Once the ALB exists (Step 4), it has a long, auto-generated AWS hostname — not
    export POLICY_ARN=$(aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text)
 
    eksctl create podidentityassociation \
-     --cluster mj-cluster \
+     --cluster <YOUR_CLUSTER_NAME> \
      --namespace external-dns \
      --service-account-name external-dns \
      --role-name external-dns-pod-identity-role \
@@ -348,8 +358,8 @@ This is where an image built in Step 7 actually becomes a running pod. `kustomiz
      - name: onlineboutique
        repo: oci://ghcr.io/<YOUR_GITHUB_USERNAME>
        version: 0.10.4
-       releaseName: mj-boutique-app
-       namespace: mj-boutique-app
+       releaseName: <YOUR_APP_NAME>
+       namespace: <YOUR_APP_NAME>
        valuesFile: Helm-Chart/values.yaml
    ```
 
@@ -360,8 +370,8 @@ This is where an image built in Step 7 actually becomes a running pod. `kustomiz
 
 3. Verify the application sync in the ArgoCD UI or via CLI:
    ```bash
-   kubectl get pods -n mj-boutique-app
-   kubectl get httproute -n mj-boutique-app
+   kubectl get pods -n <YOUR_APP_NAME>
+   kubectl get httproute -n <YOUR_APP_NAME>
    ```
    Access Online Boutique: `https://app.devopshero2.shop`
 
@@ -453,7 +463,7 @@ This half answers "what actually happened," in detail, after the fact — metric
 1. Add AWS EBS CSI driver addon for persistent Elasticsearch storage:
    ```bash
    eksctl create iamserviceaccount \
-     --cluster mj-cluster \
+     --cluster <YOUR_CLUSTER_NAME> \
      --namespace kube-system \
      --name ebs-csi-controller-sa \
      --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
@@ -461,7 +471,7 @@ This half answers "what actually happened," in detail, after the fact — metric
      --approve
 
    eksctl create addon \
-     --cluster mj-cluster \
+     --cluster <YOUR_CLUSTER_NAME> \
      --name aws-ebs-csi-driver \
      --version latest \
      --force
@@ -531,7 +541,7 @@ Prometheus (Step 10) stores metrics for dashboards and alerting, but Kubernetes'
 2. Verify node metrics are reporting:
    ```bash
    kubectl top nodes
-   kubectl top pods -n mj-boutique-app
+   kubectl top pods -n <YOUR_APP_NAME>
    ```
 
 3. Deploy Horizontal Pod Autoscaler (HPA) for frontend:
@@ -541,7 +551,7 @@ Prometheus (Step 10) stores metrics for dashboards and alerting, but Kubernetes'
 
 4. Monitor live autoscaling under load:
    ```bash
-   kubectl get hpa -n mj-boutique-app --watch
+   kubectl get hpa -n <YOUR_APP_NAME> --watch
    ```
 
 ---
