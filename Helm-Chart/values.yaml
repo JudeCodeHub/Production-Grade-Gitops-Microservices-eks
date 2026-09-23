@@ -2,38 +2,38 @@
 
 images:
   adservice:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/adservice
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/adservice
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   cartservice:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/cartservice
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/cartservice
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   checkoutservice:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/checkoutservice
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/checkoutservice
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   currencyservice:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/currencyservice
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/currencyservice
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   emailservice:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/emailservice
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/emailservice
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   frontend:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/frontend
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/frontend
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   loadgenerator:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/loadgenerator
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/loadgenerator
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   paymentservice:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/paymentservice
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/paymentservice
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   productcatalogservice:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/productcatalogservice
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/productcatalogservice
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   recommendationservice:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/recommendationservice
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/recommendationservice
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
   shippingservice:
-    repository: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/shippingservice
-    tag: v0.10.4
+    repository: ghcr.io/judecodehub/microservices-demo/shippingservice
+    tag: sha-49305edd95d1b1a1493c44054423b7523880497c
 
 serviceAccounts:
   create: true
