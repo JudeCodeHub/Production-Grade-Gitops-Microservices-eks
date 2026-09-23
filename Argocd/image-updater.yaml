@@ -6,43 +6,43 @@ metadata:
 spec:
   namespace: argocd
   applicationRefs:
-    - namePattern: "boutique-*"
+    - namePattern: "mj-boutique-*"
 
       commonUpdateSettings:
-        updateStrategy: "newest-build"
-        allowTags: "regexp:^sha-[a-f0-9]{7,40}$"
+        updateStrategy: "semver"
+        allowTags: "regexp:^v1\\.0\\.[0-9]+$"
 
       images:
         - alias: adservice
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/adservice
+          imageName: ghcr.io/judecodehub/microservices-demo/adservice
 
         - alias: cartservice
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/cartservice
+          imageName: ghcr.io/judecodehub/microservices-demo/cartservice
 
         - alias: checkoutservice
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/checkoutservice
+          imageName: ghcr.io/judecodehub/microservices-demo/checkoutservice
 
         - alias: currencyservice
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/currencyservice
+          imageName: ghcr.io/judecodehub/microservices-demo/currencyservice
 
         - alias: emailservice
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/emailservice
+          imageName: ghcr.io/judecodehub/microservices-demo/emailservice
 
         - alias: frontend
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/frontend
+          imageName: ghcr.io/judecodehub/microservices-demo/frontend
 
         - alias: paymentservice
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/paymentservice
+          imageName: ghcr.io/judecodehub/microservices-demo/paymentservice
 
         - alias: productcatalogservice
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/productcatalogservice
+          imageName: ghcr.io/judecodehub/microservices-demo/productcatalogservice
 
         - alias: recommendationservice
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/recommendationservice
+          imageName: ghcr.io/judecodehub/microservices-demo/recommendationservice
 
         - alias: shippingservice
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/shippingservice
+          imageName: ghcr.io/judecodehub/microservices-demo/shippingservice
 
         - alias: loadgenerator
-          imageName: ghcr.io/<YOUR_GITHUB_USERNAME>/microservices-demo/loadgenerator
+          imageName: ghcr.io/judecodehub/microservices-demo/loadgenerator
 
