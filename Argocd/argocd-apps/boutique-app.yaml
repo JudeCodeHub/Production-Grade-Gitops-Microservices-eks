@@ -7,7 +7,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPOSITORY_NAME>.git
+    repoURL: https://github.com/JudeCodeHub/-production-grade-gitops-microservices-eks.git
     targetRevision: HEAD
     path: .
 
