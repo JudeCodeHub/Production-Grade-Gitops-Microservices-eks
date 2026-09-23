@@ -10,12 +10,23 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/microservices-demo/${{ inputs.service }}:sha-${{ github.sha }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Resolve image name and build context
+        env:
+          OWNER: ${{ github.repository_owner }}
+          SERVICE: ${{ inputs.service }}
+          SHA: ${{ github.sha }}
+        run: |
+          echo "IMAGE_NAME=ghcr.io/${OWNER,,}/microservices-demo/${SERVICE}:sha-${SHA}" >> "$GITHUB_ENV"
+          if [ -f "src/${SERVICE}/Dockerfile" ]; then
+            echo "BUILD_CONTEXT=./src/${SERVICE}" >> "$GITHUB_ENV"
+          else
+            echo "BUILD_CONTEXT=./src/${SERVICE}/src" >> "$GITHUB_ENV"
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -28,12 +39,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Image
-        run: |
-          docker build \
-            --cache-from=type=gha \
-            --cache-to=type=gha,mode=max \
-            -t $IMAGE_NAME \
-            ./src/${{ inputs.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.BUILD_CONTEXT }}
+          tags: ${{ env.IMAGE_NAME }}
+          load: true
+          push: false
+          cache-from: type=gha,scope=${{ inputs.service }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.service }}
 
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@v0.20.0
@@ -45,5 +58,4 @@ jobs:
           vuln-type: os,library
 
       - name: Push Image
-        run: |
-          docker push $IMAGE_NAME
+        run: docker push "$IMAGE_NAME"

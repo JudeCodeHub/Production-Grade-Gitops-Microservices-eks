@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - "src/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,15 +25,21 @@ jobs:
 
       - name: Detect changed services
         id: changed
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
         run: |
-          SERVICES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
-            | grep '^src/' \
-            | cut -d'/' -f2 \
-            | sort -u \
-            | jq -R -s -c 'split("\n")[:-1]')
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            CANDIDATES=$(ls -d src/*/ | cut -d'/' -f2)
+          else
+            CANDIDATES=$(git diff --name-only "$BEFORE_SHA" "$CURRENT_SHA" | grep '^src/' | cut -d'/' -f2 | sort -u)
+          fi
+
+          SERVICES=$(for s in $CANDIDATES; do [ -d "src/$s" ] && echo "$s"; done | jq -R -s -c 'split("\n")[:-1]')
 
           echo "Detected services: $SERVICES"
-          echo "services=$SERVICES" >> $GITHUB_OUTPUT
+          echo "services=$SERVICES" >> "$GITHUB_OUTPUT"
 
 
   build-and-push:
