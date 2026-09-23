@@ -527,7 +527,7 @@ alertmanager:
     storage: {}
 
 
-    externalUrl:
+    externalUrl: https://prometheus.devopshero2.shop
 
     routePrefix: /
 
