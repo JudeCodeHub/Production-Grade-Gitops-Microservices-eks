@@ -18,7 +18,7 @@ images:
     tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
   frontend:
     repository: ghcr.io/judecodehub/microservices-demo/frontend
-    tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
+    tag: v1.0.5
   loadgenerator:
     repository: ghcr.io/judecodehub/microservices-demo/loadgenerator
     tag: sha-844c7b58c03929f9475a6d1d9c170ee166e38c11
